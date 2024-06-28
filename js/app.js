@@ -2,11 +2,13 @@ document.addEventListener("DOMContentLoaded", function(){
     const email = {
         email: "",
         asunto: "",
-        mensaje: ""
+        mensaje: "",
+        destinatario: "",
     }
 
     // Variables
     const inputEmail = document.querySelector("#email")
+    const inputDestinatario = document.querySelector("#destinatario")
     const inputAsunto = document.querySelector("#asunto")
     const inputMensaje = document.querySelector("#mensaje")
     const formulario = document.querySelector("#formulario")
@@ -18,18 +20,12 @@ document.addEventListener("DOMContentLoaded", function(){
     inputEmail.addEventListener("blur", validar)
     inputAsunto.addEventListener("blur",validar)
     inputMensaje.addEventListener("blur", validar)
+    inputDestinatario.addEventListener("blur", validar)
     formulario.addEventListener("submit", enviarEmail)
 
     btnReset.addEventListener("click", function(e){
         e.preventDefault()
-        
-        email.email = ""
-        email.asunto = ""
-        email.mensaje = ""
-
-        formulario.reset()
-        comprobarEmail()
-        console.log(email);
+        resetFormulario()
     })
 
     function enviarEmail(e){
@@ -37,20 +33,50 @@ document.addEventListener("DOMContentLoaded", function(){
 
         spinner.classList.add("flex")
         spinner.classList.remove("hidden")
+
+        setTimeout(()=>{
+            spinner.classList.remove("flex")
+            spinner.classList.add("hidden")
+            resetFormulario()
+
+            const alertaExito = document.createElement("P")
+            alertaExito.classList.add("bg-green-500", "text-white", "p-2", "text-center", "rounded-lg", "mt-10", "font-bold", "text-sm", "uppercase")
+            alertaExito.textContent  = "Mensaje enviado correctamente"
+
+            formulario.appendChild(alertaExito)
+
+            setTimeout(()=>{
+                alertaExito.remove()
+            }, 3000)
+        }, 3000)
     }
 
 
     function validar(e){
 
-        if(e.target.value.trim() === ""){
+        if(e.target.value.trim() === "" && e.target.name == "destinatatario"){
+
+        }
+
+        if(e.target.value.trim() === "" && e.target.name == "destinatario"){
+            console.log("destinatario")
+
+        }else if(e.target.value.trim() === ""){
             mostrarAlerta(`El campo ${e.target.id} es obligatorio`, e.target.parentElement)
+            email[e.target.name] = ""
+            comprobarEmail()
+            return;   
+        }
+
+        if(e.target.id === "email" && !validarEmail(e.target.value)){
+            mostrarAlerta("El email no es valido", e.target.parentElement)
             email[e.target.name] = ""
             comprobarEmail()
             return;
         }
 
-        if(e.target.id === "email" && !validarEmail(e.target.value)){
-            mostrarAlerta("El email no es valido", e.target.parentElement)
+        if(e.target.id === "destinatario" && !validarEmail(e.target.value) && e.target.value.length == 1){
+            mostrarAlerta("El email de destino no es valido", e.target.parentElement)
             email[e.target.name] = ""
             comprobarEmail()
             return;
@@ -96,6 +122,15 @@ document.addEventListener("DOMContentLoaded", function(){
         }
         btnSubmit.classList.remove("opacity-50")
         btnSubmit.disabled = false
+    }
+
+    function resetFormulario(){
+        email.email = ""
+        email.asunto = ""
+        email.mensaje = ""
+
+        formulario.reset()
+        comprobarEmail()
     }
 
 })
